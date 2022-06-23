@@ -10,13 +10,15 @@
     <DataAnnotationsValidator />
 
     <label for="inputUsername" class="sr-only">User Name</label>
-    <InputText id="inputUsername" class="form-control" @bind-Value="loginRequest.UserName" autofocus placeholder="Username" />
+    <InputText id="inputUsername" class="form-control" @bind-Value="loginRequest.UserName" autofocus
+        placeholder="Username" />
     <ValidationMessage For="@(() => loginRequest.UserName)" />
-    
+
     <label for="inputPassword" class="sr-only">Password</label>
-    <InputText type="password" id="inputPassword" class="form-control" placeholder="Password" @bind-Value="loginRequest.Password" />
+    <InputText type="password" id="inputPassword" class="form-control" placeholder="Password"
+        @bind-Value="loginRequest.Password" />
     <ValidationMessage For="@(() => loginRequest.Password)" />
-    
+
     <div class="form-check m-3">
         <InputCheckbox id="inputRememberMe" class="form-check-input" @bind-Value="@loginRequest.RememberMe" />
         <label class="form-check-label" for="inputRememberMe">Remember Me</label>
@@ -24,19 +26,26 @@
     <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
     <label class="text-danger">@error</label>
 
+    <NavLink href="register">
+        <h6 class="font-weight-normal text-center">Create account</h6>
+    </NavLink>
 </EditForm>
 
 @code {
-    private Login loginRequest {get; set;} = new Login();
-    private string? error {get; set;} = null;
+    private Login loginRequest { get; set; } = new Login();
+    private string? error { get; set; } = null;
 
-    public async Task OnSubmit() {
+    public async Task OnSubmit()
+    {
         Console.WriteLine("clicked");
         error = null;
-        try {
+        try
+        {
             await authStateProvider.Login(loginRequest);
             navigationManager.NavigateTo("");
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             error = ex.Message;
         }
     }

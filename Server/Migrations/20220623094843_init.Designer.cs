@@ -12,8 +12,8 @@ using Server.Data;
 namespace blazor_project.Server.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20220622145419_auth init")]
-    partial class authinit
+    [Migration("20220623094843_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

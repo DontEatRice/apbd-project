@@ -28,6 +28,7 @@
                 return;
 
             var authState = await AuthenticationState;
+            
             if (authState.User.Identity is not null && !authState.User.Identity.IsAuthenticated)
                 navigationManager.NavigateTo("/login");
         }
