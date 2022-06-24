@@ -41,7 +41,9 @@ namespace Server.Controllers
             var user = new ApplicationUser();
             user.UserName = body.UserName;
             var result = await _userManager.CreateAsync(user, body.Password);
-            if (!result.Succeeded) return BadRequest(result.Errors.FirstOrDefault()?.Description);
+            if (!result.Succeeded) 
+                return BadRequest(result.Errors.FirstOrDefault()?.Description);
+
             return await Login(new Login
             {
                 UserName = body.UserName,

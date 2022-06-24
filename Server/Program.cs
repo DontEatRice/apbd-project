@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Server.Data;
 using Server.Models;
+using Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,9 @@ builder.Services.ConfigureApplicationCookie(opt => {
         return Task.CompletedTask;
     };
 });
+
+builder.Services.AddHttpClient<IPolygonService, PolygonService>();
+builder.Services.AddScoped<IPolygonService, PolygonService>();
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddControllersWithViews();

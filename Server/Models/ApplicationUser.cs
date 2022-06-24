@@ -4,6 +4,6 @@ namespace Server.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        
+        public virtual ICollection<UserTicker> FollowedTickers {get; set;} = null!;
     }
 }
