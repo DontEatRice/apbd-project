@@ -3,6 +3,7 @@
 @using Syncfusion.Blazor.Data
 @using System.Text.Json.Serialization
 @using blazor_project.Shared.Models
+@using blazor_project.Shared.Models.DTOs
 @inject HttpClient httpClient
 
 @inherits DataAdaptor<Ticker>
@@ -28,12 +29,12 @@
             return new DataResult() { Result = null, Count = 0 };
         }
 
-        var response = await httpClient.GetFromJsonAsync<Ticker[]>("api/Tickers/Search?q=" + key);
+        var response = await httpClient.GetFromJsonAsync<TickerSearch[]>("api/Tickers/Search?q=" + key);
 
         if (response is null)
             return new DataResult() { Result = null, Count = 0 };
 
-        IEnumerable<Ticker> DataSource = response.ToList();
+        IEnumerable<TickerSearch> DataSource = response.ToList();
         var count = DataSource.Count();
 
         return dm.RequiresCounts ? new DataResult() { Result = DataSource, Count = count } : (object)DataSource;

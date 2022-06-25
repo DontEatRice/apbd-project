@@ -1,4 +1,3 @@
-@page "/register"
 @layout AuthLayout
 @using blazor_project.Shared.Models.DTOs
 @inject NavigationManager navigationManager
@@ -23,9 +22,9 @@
     
     <label class="text-danger">@error</label>
 
-    <NavLink href="login">
+    @* <NavLink href="login">
         <h6 class="font-weight-normal text-center">Already have an account? Click here to login</h6>
-    </NavLink>
+    </NavLink> *@
 </EditForm>
 
 @code {
@@ -36,7 +35,7 @@
         error = null;
         try {
             await authStateProvider.Register(registerRequest);
-            navigationManager.NavigateTo("");
+            //navigationManager.NavigateTo("");
         } catch (Exception ex) {
             error = ex.Message;
         }

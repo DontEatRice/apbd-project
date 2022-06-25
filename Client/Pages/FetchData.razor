@@ -3,8 +3,15 @@
 @using Syncfusion.Blazor.Data
 @using Syncfusion.Blazor.DropDowns
 @using blazor_project.Shared
-@using blazor_project.Shared.Models
+@using blazor_project.Shared.Models.DTOs
 @inject HttpClient Http
+
+<style>
+    .company-name {
+        right: 15px;
+        position: absolute;
+    }
+</style>
 
 <PageTitle>Weather forecast</PageTitle>
 
@@ -18,13 +25,15 @@
 }
 else
 {
-    <SfAutoComplete TValue="string" TItem="WeatherForecast" Placeholder="e.g. Australia" DataSource="@forecasts">
-        <AutoCompleteFieldSettings Value="Summary"></AutoCompleteFieldSettings>
-    </SfAutoComplete>
-    <SfAutoComplete TValue="string" TItem="Ticker">
+    <SfAutoComplete TValue="string" TItem="TickerSearch">
         <SfDataManager Adaptor="Adaptors.CustomAdaptor">
             <ComponentAdaptor></ComponentAdaptor>
         </SfDataManager>
+        <AutoCompleteTemplates TItem="TickerSearch">
+        <ItemTemplate>
+            <span><span class='name'>@((context as TickerSearch).TickerSymbol)</span><span class='company-name'>@((context as TickerSearch).Name)</span></span>
+        </ItemTemplate>
+        </AutoCompleteTemplates>
         <AutoCompleteFieldSettings Value="TickerSymbol"></AutoCompleteFieldSettings>
     </SfAutoComplete>
 

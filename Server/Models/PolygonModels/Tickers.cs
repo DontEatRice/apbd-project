@@ -3,6 +3,7 @@ namespace Server.Models.PolygonModels
     public class Result
     {
         public string ticker { get; set; } = null!;
+        public string name { get; set; } = null!;
     }
 
     public class Tickers

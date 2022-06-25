@@ -1,35 +1,33 @@
-@page "/login"
 @layout AuthLayout
 @using blazor_project.Shared.Models.DTOs
 @inject NavigationManager navigationManager
 @inject AuthStateProvider authStateProvider
+    <h1>Login</h1>
 
-<h1>Login</h1>
+    <EditForm class="form-signin" Model="loginRequest" OnValidSubmit="OnSubmit">
+        <DataAnnotationsValidator />
 
-<EditForm class="form-signin" Model="loginRequest" OnValidSubmit="OnSubmit">
-    <DataAnnotationsValidator />
+        <label for="inputUsername" class="sr-only">User Name</label>
+        <InputText id="inputUsername" class="form-control" @bind-Value="loginRequest.UserName" autofocus
+            placeholder="Username" />
+        <ValidationMessage For="@(() => loginRequest.UserName)" />
 
-    <label for="inputUsername" class="sr-only">User Name</label>
-    <InputText id="inputUsername" class="form-control" @bind-Value="loginRequest.UserName" autofocus
-        placeholder="Username" />
-    <ValidationMessage For="@(() => loginRequest.UserName)" />
+        <label for="inputPassword" class="sr-only">Password</label>
+        <InputText type="password" id="inputPassword" class="form-control" placeholder="Password"
+            @bind-Value="loginRequest.Password" />
+        <ValidationMessage For="@(() => loginRequest.Password)" />
 
-    <label for="inputPassword" class="sr-only">Password</label>
-    <InputText type="password" id="inputPassword" class="form-control" placeholder="Password"
-        @bind-Value="loginRequest.Password" />
-    <ValidationMessage For="@(() => loginRequest.Password)" />
+        <div class="form-check m-3">
+            <InputCheckbox id="inputRememberMe" class="form-check-input" @bind-Value="@loginRequest.RememberMe" />
+            <label class="form-check-label" for="inputRememberMe">Remember Me</label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <label class="text-danger">@error</label>
 
-    <div class="form-check m-3">
-        <InputCheckbox id="inputRememberMe" class="form-check-input" @bind-Value="@loginRequest.RememberMe" />
-        <label class="form-check-label" for="inputRememberMe">Remember Me</label>
-    </div>
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-    <label class="text-danger">@error</label>
-
-    <NavLink href="register">
-        <h6 class="font-weight-normal text-center">Create account</h6>
-    </NavLink>
-</EditForm>
+        @* <NavLink href="register">
+            <h6 class="font-weight-normal text-center">Create account</h6>
+        </NavLink> *@
+    </EditForm>
 
 @code {
     private Login loginRequest { get; set; } = new Login();
@@ -49,4 +47,5 @@
             error = ex.Message;
         }
     }
+
 }

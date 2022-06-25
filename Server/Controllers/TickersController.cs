@@ -28,7 +28,7 @@ namespace Server.Controllers
         public async Task<IActionResult> Search([FromQuery(Name = "q")] string term) {
             try {
                 return Ok(
-                    (await _service.Search(term))?.results.Select(e => new blazor_project.Shared.Models.Ticker {TickerSymbol = e.ticker})
+                    (await _service.Search(term))?.results.Select(e => new blazor_project.Shared.Models.DTOs.TickerSearch {TickerSymbol = e.ticker, Name = e.name})
                 );
             } catch (Exception e) {
                 Console.WriteLine(e);
