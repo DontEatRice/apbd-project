@@ -22,7 +22,7 @@ namespace Server.Controllers
         public async Task<IActionResult> Login(Login request)
         {
             var user = await _userManager.FindByNameAsync(request.UserName);
-
+            
             if (user == null)
                 return BadRequest("User does not exist");
 

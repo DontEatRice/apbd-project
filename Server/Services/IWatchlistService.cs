@@ -7,7 +7,7 @@ namespace Server.Services
         void CreateEntry(UserTicker entry);
         void DeleteEntry(UserTicker entry);
         Task SaveDatabaseAsync();
-        IQueryable<UserTicker> UserWatchlist(string userId);
-        IQueryable<UserTicker> GetUserTickerByNames(string tickerName, string userName);
+        Task<List<UserTicker>> UserWatchlist(string userId);
+        Task<UserTicker?> GetUserTickerByNames(string tickerName, string userName);
     }
 }

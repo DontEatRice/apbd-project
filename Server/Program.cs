@@ -22,6 +22,8 @@ builder.Services.ConfigureApplicationCookie(opt => {
 
 builder.Services.AddHttpClient<IPolygonService, PolygonService>();
 builder.Services.AddScoped<IPolygonService, PolygonService>();
+builder.Services.AddScoped<IWatchlistService, WatchlistService>();
+builder.Services.AddScoped<ITickerService, TickerService>();
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddControllersWithViews();

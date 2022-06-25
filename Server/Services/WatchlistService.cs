@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Server.Data;
 using Server.Models;
 
@@ -20,13 +21,15 @@ namespace Server.Services
             Delete(entry);
         }
 
-        public IQueryable<UserTicker> UserWatchlist(string userId)
+        public async Task<UserTicker?> GetUserTickerByNames(string tickerName, string userName)
         {
-            return GetByCondition(ut => ut.User.Id == userId);
+            return await GetByCondition(ut => ut.Ticker.TickerSymbol == tickerName && ut.User.NormalizedUserName == userName.ToUpper()).FirstOrDefaultAsync();
         }
 
-        public IQueryable<UserTicker> GetUserTickerByNames(string tickerName, string userName) {
-            return GetByCondition(ut => ut.Ticker.TickerSymbol == tickerName && ut.User.NormalizedUserName == userName.ToUpper());
+        public async Task<List<UserTicker>> UserWatchlist(string userId)
+        {
+            return await GetByCondition(ut => ut.IdUser == userId).Include(e => e.Ticker).ToListAsync();
         }
+
     }
 }

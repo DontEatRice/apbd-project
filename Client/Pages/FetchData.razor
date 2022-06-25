@@ -1,5 +1,9 @@
 ﻿@page "/fetchdata"
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.DropDowns
 @using blazor_project.Shared
+@using blazor_project.Shared.Models
 @inject HttpClient Http
 
 <PageTitle>Weather forecast</PageTitle>
@@ -14,6 +18,16 @@
 }
 else
 {
+    <SfAutoComplete TValue="string" TItem="WeatherForecast" Placeholder="e.g. Australia" DataSource="@forecasts">
+        <AutoCompleteFieldSettings Value="Summary"></AutoCompleteFieldSettings>
+    </SfAutoComplete>
+    <SfAutoComplete TValue="string" TItem="Ticker">
+        <SfDataManager Adaptor="Adaptors.CustomAdaptor">
+            <ComponentAdaptor></ComponentAdaptor>
+        </SfDataManager>
+        <AutoCompleteFieldSettings Value="TickerSymbol"></AutoCompleteFieldSettings>
+    </SfAutoComplete>
+
     <table class="table">
         <thead>
             <tr>
@@ -44,4 +58,6 @@ else
     {
         forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
     }
+
+    
 }
