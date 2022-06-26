@@ -2,26 +2,12 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager navigationManager
 
-@if (!IsAuthenticated && loginDisplay)
-{
-    <LoginScreen />
-    <div @onclick="ToggleAuthDisplay">
-        <h6 class="font-weight-normal text-center">Create account</h6>
-    </div>
-}
-else if (!IsAuthenticated && !loginDisplay) {
-    <RegisterScreen />
-    <div @onclick="ToggleAuthDisplay">
-        <h6 class="font-weight-normal text-center">Already have an account? Click here to login</h6>
-    </div>
-} else 
-{
-    <AuthorizeView>
+    @* <AuthorizeView>
         <Authorized>
             <h1>Hello @context.User?.Identity?.Name !!</h1>
         </Authorized>
-    </AuthorizeView>
-}
+    </AuthorizeView> *@
+    <Dashboard />
 
 @* <AuthorizeView>
     <Authorized>
@@ -31,34 +17,3 @@ else if (!IsAuthenticated && !loginDisplay) {
     <LoginScreen />
     </Authorizing>
     </AuthorizeView> *@
-
-@code {
-    [CascadingParameter]
-    private Task<AuthenticationState>? AuthenticationState { get; set; }
-    private bool IsAuthenticated { get; set; } = false;
-    private bool loginDisplay { get; set; } = true;
-
-    protected override async Task OnParametersSetAsync()
-    {
-        if (AuthenticationState is null){
-            IsAuthenticated = false;
-            return;
-        }
-        var authState = await AuthenticationState;
-
-        if (authState.User.Identity is not null && !authState.User.Identity.IsAuthenticated){
-            IsAuthenticated = false;
-            return;
-        }
-        IsAuthenticated = true;
-    }
-
-    public void ToggleAuthDisplay() {
-        loginDisplay = !loginDisplay;
-    }
-}
-
-@* public async Task LogoutClick() {
-    await authStateProvider.Logout();
-    navigationManager.NavigateTo("/login");
-    } *@

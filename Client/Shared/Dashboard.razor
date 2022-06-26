@@ -1,0 +1,76 @@
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Charts
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Navigations
+@using blazor_project.Shared.Models.DTOs
+@inject AuthStateProvider authStateProvider
+@inject HttpClient Http
+
+<div class="title-container">
+    <h1 class="title">Dashboard</h1> <button class="btn btn-primary logout-btn" @onclick="Logout">Logout</button>
+</div>
+
+<div class="search-dropdown">
+    <SfAutoComplete TValue="string" TItem="TickerSearch" @bind-Value="@Symbol">
+        <SfDataManager Adaptor="Adaptors.CustomAdaptor">
+            <ComponentAdaptor></ComponentAdaptor>
+        </SfDataManager>
+        <AutoCompleteTemplates TItem="TickerSearch">
+            <ItemTemplate>
+                <span><span class='name'>@((context as TickerSearch).TickerSymbol)</span><span
+                        class='company-name'>@((context as TickerSearch).Name)</span></span>
+            </ItemTemplate>
+        </AutoCompleteTemplates>
+        <AutoCompleteFieldSettings Value="TickerSymbol"></AutoCompleteFieldSettings>
+    </SfAutoComplete>
+</div>
+<button class="btn btn-primary" @onclick="Search">Search</button>
+
+@if (Data is null)
+{
+    <h1>Pick a symbol</h1>
+}
+else
+{
+    <div>
+        <img alt="@Data.results.name" src="@Data.results.branding?.logo_url" />
+        <div class="details">
+
+        </div>
+        <div class="details-actions">
+            <button>Add to watchlist</button>
+        </div>
+    </div>
+
+    <div>
+        <button>Current day</button>
+        <button>1 week ago</button>
+        <button>1 month ago</button>
+        <button>3 month ago</button>
+    </div>
+    <SfStockChart Title="@(Symbol + " stock price")">
+        <StockChartSeriesCollection>
+            <StockChartSeries DataSource="@StockPrices" Type="ChartSeriesType.Candle" XName="time" High="high" Low="low"
+            Open="open" Close="close" Volume="volume" Name="@Data.results.name"></StockChartSeries>
+        </StockChartSeriesCollection>
+    </SfStockChart>
+}
+
+@code {
+    public string Symbol { get; set; } = "";
+    public TickerInfo? Data { get; set; } = null;
+    public List<TickerPrice> StockPrices {get; set; } = new List<TickerPrice>();
+    private async Task Logout()
+    {
+        await authStateProvider.Logout();
+    }
+
+    private async Task Search()
+    {
+        if (Symbol == "")
+            return;
+        Data = await Http.GetFromJsonAsync<TickerInfo>("api/tickers/info/" + Symbol);
+        Console.WriteLine(Data);
+    }
+}

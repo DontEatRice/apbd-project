@@ -1,3 +1,4 @@
+@page "/login"
 @layout AuthLayout
 @using blazor_project.Shared.Models.DTOs
 @inject NavigationManager navigationManager
@@ -24,9 +25,9 @@
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
         <label class="text-danger">@error</label>
 
-        @* <NavLink href="register">
+        <NavLink href="register">
             <h6 class="font-weight-normal text-center">Create account</h6>
-        </NavLink> *@
+        </NavLink>
     </EditForm>
 
 @code {
@@ -35,10 +36,8 @@
 
     public async Task OnSubmit()
     {
-        Console.WriteLine("clicked");
         error = null;
-        try
-        {
+        try {
             await authStateProvider.Login(loginRequest);
             navigationManager.NavigateTo("");
         }

@@ -1,6 +1,3 @@
-using Newtonsoft.Json;
-using Server.Data;
-using Server.Models;
 using Server.Models.PolygonModels;
 
 namespace Server.Services
@@ -14,21 +11,29 @@ namespace Server.Services
         public PolygonService(HttpClient httpClient)
         {
             _httpClient = httpClient;
- 
+        }
 
+        public string GetApiKey()
+        {
+            return API_KEY;
+        }
+
+        public async Task<TickerPrice?> GetPrice(string name, long from, long to)
+        {
+            return await _httpClient.GetFromJsonAsync<TickerPrice>(
+                $"https://api.polygon.io/v2/aggs/ticker/{name}/range/1/hour/{from}/{to}?adjusted=true&sort=asc&apiKey={API_KEY}"
+            );
         }
 
         public async Task<TickerInfo?> GetTickerByName(string name)
         {
-            var response = await _httpClient.GetStringAsync($"{BASE_URL}tickers/{name.ToUpper()}?apiKey={API_KEY}");
-            return JsonConvert.DeserializeObject<TickerInfo>(response);
+            return await _httpClient.GetFromJsonAsync<TickerInfo>($"{BASE_URL}tickers/{name.ToUpper()}?apiKey={API_KEY}");
         }
 
 
         public async Task<Tickers?> Search(string term)
         {
-            var response = await _httpClient.GetStringAsync( $"{BASE_URL}tickers?search={term.ToUpper()}&market=stocks&active=true&sort=ticker&limit=20&order=asc&apiKey={API_KEY}");
-            return JsonConvert.DeserializeObject<Tickers>(response);
+            return await _httpClient.GetFromJsonAsync<Tickers>( $"{BASE_URL}tickers?search={term.ToUpper()}&market=stocks&active=true&sort=ticker&limit=20&order=asc&apiKey={API_KEY}");
         }
 
     }

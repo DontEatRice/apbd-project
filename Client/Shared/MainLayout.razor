@@ -4,11 +4,6 @@
 
 <div class="page">
     <main>
-        @if (IsAuthenticated) {
-            <div class="top-row px-4">
-                <button type="button" class="btn btn-link ml-md-auto" @onclick="@LogoutClick">Logout</button>
-            </div>
-        }
         <article class="content px-4">
             @Body
         </article>
@@ -18,23 +13,21 @@
 @code {
     [CascadingParameter]
     private Task<AuthenticationState>? AuthenticationState { get; set; }
-    private bool IsAuthenticated {get; set;} = false;
     protected override async Task OnParametersSetAsync()
     {
         if (AuthenticationState is null)
         {
-            IsAuthenticated = false;
+            navigationManager.NavigateTo("/login");
             return;
         }
         var authState = await AuthenticationState;
 
         if (authState.User.Identity is not null && !authState.User.Identity.IsAuthenticated)
         {
-            IsAuthenticated = false;
+            navigationManager.NavigateTo("/login");
             return;
         }
-        IsAuthenticated = true;
-        @* todo redirect to main page *@
+
     }
     public async Task LogoutClick()
     {

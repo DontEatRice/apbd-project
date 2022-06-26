@@ -25,7 +25,6 @@ namespace Server.Models.PolygonModels
         public string list_date { get; set; } = null!;
         public string locale { get; set; } = null!;
         public string market { get; set; } = null!;
-        public long market_cap { get; set; }
         public string name { get; set; } = null!;
         public string phone_number { get; set; } = null!;
         public string primary_exchange { get; set; } = null!;
