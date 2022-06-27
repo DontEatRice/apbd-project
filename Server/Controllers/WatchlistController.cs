@@ -15,12 +15,14 @@ namespace Server.Controllers
     {
         private readonly IWatchlistService _watchlistService;
         private readonly ITickerService _tickerService;
+        private readonly IPolygonService _polygonService;
         private readonly UserManager<ApplicationUser> _userManager;
-        public WatchlistController(IWatchlistService watchlistService, ITickerService tickerService, UserManager<ApplicationUser> userManager)
+        public WatchlistController(IWatchlistService watchlistService, ITickerService tickerService, IPolygonService polygonService, UserManager<ApplicationUser> userManager)
         {
             _watchlistService = watchlistService;
             _tickerService = tickerService;
             _userManager = userManager;
+            _polygonService = polygonService;
         }
 
         [HttpGet]
@@ -30,17 +32,17 @@ namespace Server.Controllers
                 return BadRequest("User does not exist");
             
             var watchlist = await _watchlistService.UserWatchlist(user.Id);
-            var result = new Watchlist{
-                Tickers = watchlist.Select(e => new blazor_project.Shared.Models.Ticker {
-                    IdTicker = e.IdTicker,
-                    TickerSymbol = e.Ticker.TickerSymbol
-                })
-            };
-            return Ok(result);
+            return Ok(watchlist.Select(e => new blazor_project.Shared.Models.Ticker {
+                IdTicker = e.IdTicker,
+                TickerSymbol = e.Ticker.TickerSymbol,
+                LogoUrl = e.Ticker.LogoUrl + "?apiKey=" + _polygonService.GetApiKey(),
+                Name = e.Ticker.Name,
+                Sic = e.Ticker.Sic
+            }));
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> Remove([FromBody] WatchlistPOST body)
+        [HttpDelete("{name}")]
+        public async Task<IActionResult> Remove(string name)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Model is invalid!");
@@ -49,9 +51,10 @@ namespace Server.Controllers
             if (user is null)
                 return BadRequest("User does not exist");
 
-            var ticker = await _tickerService.GetTickerByName(body.TickerSymbol);
-            if (ticker is null)
-                return BadRequest("Cannot find ticker in database");
+            var ticker = await _watchlistService.GetUserTickerByNames(name, user.UserName);
+            if (ticker is null) {
+                return NotFound();
+            }
 
             var userTicker = new UserTicker
             {
@@ -89,9 +92,13 @@ namespace Server.Controllers
                     var ticker = await _tickerService.GetTickerByName(body.TickerSymbol);
                     if (ticker is null)
                     {
+                        var tickerInfo = await _polygonService.GetTickerByName(body.TickerSymbol);
                         ticker = new Ticker
                         {
-                            TickerSymbol = body.TickerSymbol
+                            TickerSymbol = body.TickerSymbol,
+                            LogoUrl = tickerInfo?.results.branding?.logo_url,
+                            Name = tickerInfo?.results.name,
+                            Sic = tickerInfo?.results.sic_description
                         };
                         _tickerService.CreateTicker(ticker);
                         await _tickerService.SaveDatabaseAsync();
@@ -116,7 +123,6 @@ namespace Server.Controllers
                 }
             }
             await _watchlistService.SaveDatabaseAsync();
-            await _tickerService.SaveDatabaseAsync();
 
             return NoContent();
         }

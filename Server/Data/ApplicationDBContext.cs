@@ -22,6 +22,9 @@ namespace Server.Data
                 e.HasKey(e => e.IdTicker);
 
                 e.Property(e => e.TickerSymbol).HasMaxLength(16).IsRequired(true);
+                e.Property(e => e.Sic).IsRequired(false).HasMaxLength(200);
+                e.Property(e => e.LogoUrl).IsRequired(false).HasMaxLength(700);
+                e.Property(e => e.Name).IsRequired(false).HasMaxLength(150);
             });
 
             builder.Entity<UserTicker>(e => {

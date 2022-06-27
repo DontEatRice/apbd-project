@@ -19,7 +19,7 @@
     <InputText type="password" id="inputPasswordConfirm" class="form-control" placeholder="Password Confirmation" @bind-Value="@registerRequest.PasswordConfirm" />
     <ValidationMessage For="@(() => registerRequest.PasswordConfirm)" />
     
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Create account</button>
+    <button class="btn btn-lg btn-primary btn-block" type="submit" style="margin-top: 10px;">Create account</button>
     
     <label class="text-danger">@error</label>
 

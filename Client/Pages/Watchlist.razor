@@ -1,0 +1,118 @@
+@page "/watchlist"
+@using blazor_project.Shared.Models
+@inject IJSRuntime js
+@inject NavigationManager navigator
+@inject HttpClient Http
+
+<h2>Watchlist</h2>
+@if (allTickers is null) {
+    <h4>Loading...</h4>
+} else if (allTickers.Count() == 0 || tickers is null) {
+    <h4>Add something to your watchlist and come back later!</h4>
+    <a href="/">Dashboard</a>
+} else {
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Logo</th>
+            <th @onclick="@(() => Sort("TickerSymbol"))" class="clickable">Symbol</th>
+            <th @onclick="@(() => Sort("Name"))" class="clickable">Name</th>
+            <th @onclick="@(() => Sort("Sic"))" class="clickable">Sic</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ticker in tickers)
+        {
+            <tr>
+                <td @onclick="@(() => GoTo(ticker.TickerSymbol))" class="clickable"><img src="@ticker.LogoUrl" alt="@(ticker.Name) Logo"></td>
+                <td @onclick="@(() => GoTo(ticker.TickerSymbol))" class="clickable">@ticker.TickerSymbol</td>
+                <td @onclick="@(() => GoTo(ticker.TickerSymbol))" class="clickable">@ticker.Name</td>
+                <td @onclick="@(() => GoTo(ticker.TickerSymbol))" class="clickable">@ticker.Sic</td>
+                <td>
+                    <button class="btn btn-danger" @onclick="(() => RemoveFromWatchlist(ticker.TickerSymbol))">Delete</button>
+                </td>
+            </tr>            
+        }
+    </tbody>
+</table>
+<div class="under-table">
+    <button class="btn btn-outline-primary return-btn" data-mdb-ripple-color="dark" @onclick="Return">Return</button>
+    <div class="paging-btns">
+        @for (int i = 1; i <= (int) Math.Ceiling(allTickers.Count() / (double)itemsPerPage); i++)
+        {   
+            var j = i;
+            <button class="btn btn-outline-primary" data-mdb-ripple-color="dark" @onclick="() => Paging(j)">@i</button> 
+        }
+    </div>
+</div>
+}
+
+@code {
+    public List<Ticker>? tickers {get; set;} 
+    public List<Ticker>? allTickers {get; set;} 
+    public KeyValuePair<string, bool> ColumnSort {get; set;} = new KeyValuePair<string, bool>("", false);
+    private int itemsPerPage = 5;
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        allTickers = (await Http.GetFromJsonAsync<Ticker[]>("api/watchlist"))?.ToList();
+        tickers = allTickers?.Take(itemsPerPage).ToList();
+    }
+
+    public void Paging(int page) {
+        tickers = allTickers?.Skip((page-1)*itemsPerPage).Take(itemsPerPage).ToList();
+
+        if (ColumnSort.Value)
+            SortDesc(ColumnSort.Key);
+        else
+            SortAsc(ColumnSort.Key);
+
+        this.StateHasChanged();
+    }
+
+    private async void RemoveFromWatchlist(string symbol) {
+        var result = await js.InvokeAsync<bool>("confirm", "Are you sure you want to delete this?");
+        if (result && tickers is not null) {
+            var ticker = tickers.Find(e => e.TickerSymbol == symbol);
+            if (ticker is not null){
+                allTickers?.Remove(ticker);
+                Paging(1);
+            }
+
+            await Http.DeleteAsync($"api/watchlist/{symbol}");
+        }
+    }
+
+    private void Sort(string columnName) {
+        if (ColumnSort.Key != columnName) {
+            ColumnSort = new KeyValuePair<string, bool>(columnName, false);
+        } else {
+            ColumnSort = new KeyValuePair<string, bool>(columnName, !ColumnSort.Value);
+        }
+
+        if (ColumnSort.Value)
+            SortDesc(columnName);
+        else
+            SortAsc(columnName);
+        
+        this.StateHasChanged();
+    }
+    private void SortAsc(string columnName) {
+        tickers = tickers?.OrderBy(e => e.GetType().GetProperty(columnName)?.GetValue(e, null)).ToList();
+    }
+
+    private void SortDesc(string columnName) {
+        tickers = tickers?.OrderByDescending(e => e.GetType().GetProperty(columnName)?.GetValue(e, null)).ToList();
+    }
+
+    private void Return() {
+        navigator.NavigateTo("");
+    }
+
+    private void GoTo(string symbol) {
+        navigator.NavigateTo($"/?symbol={symbol}");
+    }
+}
+

@@ -1,11 +1,12 @@
 using blazor_project.Shared;
 using blazor_project.Shared.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Services;
 
 namespace Server.Controllers
 {
-    // [Authorize]
+    [Authorize]
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class TickersController : ControllerBase
@@ -42,6 +43,7 @@ namespace Server.Controllers
         }
 
         [HttpGet("{name}/{from}/{to}")]
+        [ResponseCache(Duration = 60)]
         public async Task<IActionResult> Price(string name, long from, long to) {
             try {
                 var data = await _service.GetPrice(name, from, to);
@@ -66,6 +68,7 @@ namespace Server.Controllers
         }
 
         [HttpGet("{name}")]
+        [ResponseCache(Duration = 24*60)]
         public async Task<IActionResult> Info(string name) {
             try {
                 var data = await _service.GetTickerByName(name);
@@ -88,6 +91,7 @@ namespace Server.Controllers
         }
 
         [HttpGet]
+        [ResponseCache(Duration = 7*24*60, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new string[] {"q"})]
         public async Task<IActionResult> Search([FromQuery(Name = "q")] string term) {
             try {
                 return Ok(

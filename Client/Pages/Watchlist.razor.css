@@ -1,0 +1,24 @@
+img {
+    height: 100px;
+    aspect-ratio: 1/1;
+}
+
+th.clickable {
+    cursor: pointer;
+}
+
+table, h4 {
+    text-align:center;
+}
+
+.under-table button, .paging-btns {
+    display: inline-block;
+}
+
+.paging-btns {
+    text-align: right;
+}
+
+.paging-btns button {
+    margin-left: 5px;
+}

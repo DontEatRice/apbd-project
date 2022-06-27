@@ -20,6 +20,8 @@ builder.Services.ConfigureApplicationCookie(opt => {
     };
 });
 
+builder.Services.AddResponseCaching();
+
 builder.Services.AddHttpClient<IPolygonService, PolygonService>();
 builder.Services.AddScoped<IPolygonService, PolygonService>();
 builder.Services.AddScoped<IWatchlistService, WatchlistService>();
@@ -49,6 +51,8 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseResponseCaching();
 
 app.UseAuthentication();
 app.UseAuthorization();

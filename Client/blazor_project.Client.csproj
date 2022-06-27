@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="6.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.2" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="Syncfusion.Blazor.DropDowns" Version="20.1.0.61" />
     <PackageReference Include="Syncfusion.Blazor.Layouts" Version="20.1.0.61" />
     <PackageReference Include="Syncfusion.Blazor.Navigations" Version="20.1.0.61" />

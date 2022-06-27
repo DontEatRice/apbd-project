@@ -1,0 +1,90 @@
+.company-name {
+    right: 15px;
+    position: absolute;
+}
+
+.title {
+    display: inline-block;
+    margin-top: 15px;
+}
+
+.logout-btn {
+    font-size: 1.5rem;
+    margin-right: 20px;
+    margin-bottom: 15px;
+}
+
+.search-dropdown {
+    width: 80vw;
+    font-size: 1.2rem;
+    display: inline-block;
+}
+
+.title-container {
+    width: 100%;
+}
+
+.body-placeholder {
+    text-align: center;
+    margin-top: 20vh;
+}
+
+#company {
+    margin-top: 20px;
+    width: 100%;
+    height: fit-content;
+    margin-bottom: 20px;
+}
+
+#company .details {
+    font-size: 1.3rem;
+    /* display: flex;
+    width: 70%; */
+}
+
+#company div {
+    display: inline-block;
+}
+
+#company img {
+    height: 150px;
+    aspect-ratio: 1/1;
+}
+
+.news-header {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.article-info {
+    color: black;
+    display: flex;
+    justify-content: space-between;
+}
+
+.article-desc {
+    flex-grow: 2;
+}
+
+.author-name {
+    font-weight: bold;
+}
+
+.article-info * {
+    margin-right: 30px; 
+}
+
+.article a {
+    text-decoration: none;
+    color: black;
+}
+
+a:link { text-decoration: none; }
+
+
+a:visited { text-decoration: none; }
+
+
+a:hover { text-decoration: none; }
+
+
+a:active { text-decoration: none; }
