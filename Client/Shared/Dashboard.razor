@@ -1,3 +1,4 @@
+@using blazor_project.Shared
 @using Syncfusion.Blazor
 @using Syncfusion.Blazor.Charts
 @using Syncfusion.Blazor.Data
@@ -12,10 +13,10 @@
 </div>
 
 <div class="search-dropdown">
-    <SfAutoComplete TValue="string" TItem="TickerSearch" @bind-Value="@Symbol">
-        <SfDataManager Adaptor="Adaptors.CustomAdaptor">
-            <ComponentAdaptor></ComponentAdaptor>
-        </SfDataManager>
+    <SfAutoComplete TValue="string" TItem="TickerSearch" @bind-Value="@symbol" AllowFiltering="true" @ref="autoComplete">
+        @* <SfDataManager Adaptor="Adaptors.CustomAdaptor">
+            <ComponentAdaptor @ref="adaptor"></ComponentAdaptor>
+            </SfDataManager> *@
         <AutoCompleteTemplates TItem="TickerSearch">
             <ItemTemplate>
                 <span><span class='name'>@((context as TickerSearch).TickerSymbol)</span><span
@@ -23,54 +24,169 @@
             </ItemTemplate>
         </AutoCompleteTemplates>
         <AutoCompleteFieldSettings Value="TickerSymbol"></AutoCompleteFieldSettings>
+        <AutoCompleteEvents TValue="string" TItem="TickerSearch" Filtering="OnInputDebounced">
+        </AutoCompleteEvents>
     </SfAutoComplete>
 </div>
 <button class="btn btn-primary" @onclick="Search">Search</button>
 
-@if (Data is null)
+@if (tickerInfo is null)
 {
     <h1>Pick a symbol</h1>
 }
 else
 {
     <div>
-        <img alt="@Data.results.name" src="@Data.results.branding?.logo_url" />
+        <img alt="@tickerInfo.name" src="@tickerInfo.branding?.logo_url" />
         <div class="details">
 
         </div>
         <div class="details-actions">
-            <button>Add to watchlist</button>
+            <button class="btn btn-primary">Add to watchlist</button>
         </div>
     </div>
 
     <div>
-        <button>Current day</button>
-        <button>1 week ago</button>
-        <button>1 month ago</button>
-        <button>3 month ago</button>
+        <button class="btn btn-primary" @onclick="@(() => DownloadPrices(DateTime.Now.AddDays(-3), DateTime.Now))">Current day</button>
+        <button class="btn btn-primary" @onclick="@(() => DownloadPrices(DateTime.Now.AddDays(-8), DateTime.Now.AddDays(-5)))">1 week ago</button>
+        <button class="btn btn-primary" @onclick="@(() => DownloadPrices(DateTime.Now.AddMonths(-1), DateTime.Now.AddMonths(-1).AddDays(3)))">1 month ago</button>
+        <button class="btn btn-primary" @onclick="@(() => DownloadPrices(DateTime.Now.AddMonths(-3), DateTime.Now.AddMonths(-3).AddDays(3)))">3 months ago</button>
     </div>
-    <SfStockChart Title="@(Symbol + " stock price")">
-        <StockChartSeriesCollection>
-            <StockChartSeries DataSource="@StockPrices" Type="ChartSeriesType.Candle" XName="time" High="high" Low="low"
-            Open="open" Close="close" Volume="volume" Name="@Data.results.name"></StockChartSeries>
-        </StockChartSeriesCollection>
-    </SfStockChart>
+    @if (stockPrices.Count() > 0)
+    {
+        <SfStockChart Title="@(symbol + " stock price")" EnablePeriodSelector="false" @ref="chart">
+            @* <StockChartPrimaryXAxis ValueType="@Syncfusion.Blazor.Charts.ValueType.DateTime"></StockChartPrimaryXAxis> *@
+
+            <StockChartPrimaryYAxis>
+                <StockChartAxisLineStyle Color="Transparent"></StockChartAxisLineStyle>
+                <StockChartAxisMajorTickLines Color="Transparent" Width="0"></StockChartAxisMajorTickLines>
+                <StockChartAxisCrosshairTooltip Enable="true"></StockChartAxisCrosshairTooltip>
+            </StockChartPrimaryYAxis>
+
+            @* <StockChartPrimaryXAxis LabelFormat="dd/MM hh:mm:ss" Interval="1" IntervalType="IntervalType.Days"> *@
+            <StockChartPrimaryXAxis>
+                <StockChartAxisMajorGridLines Color="Transparent"></StockChartAxisMajorGridLines>
+                <StockChartAxisCrosshairTooltip Enable="true"></StockChartAxisCrosshairTooltip>
+            </StockChartPrimaryXAxis>
+
+            <StockChartCrosshairSettings Enable="true" LineType="LineType.Both"></StockChartCrosshairSettings>
+            <StockChartTooltipSettings Enable="true" Shared="true"></StockChartTooltipSettings>
+            <StockChartSeriesCollection>
+                <StockChartSeries DataSource="@stockPrices" Type="ChartSeriesType.Candle" XName="time" High="high" Low="low"
+            Open="open" Close="close" Volume="volume" Name="@tickerInfo.name" EnableSolidCandles="true"></StockChartSeries>
+            </StockChartSeriesCollection>
+        </SfStockChart>
+    }
+
+    @if (tickerNews.Count() > 0) {
+        <h1>Recent news about @tickerInfo.name</h1>
+        @foreach (var news in tickerNews)
+        {
+            <a href="@news.article_url">
+                <h3>@news.title</h3>
+                <span class="author-name">@news.author</span>
+                <span class="article-desc">@news.description</span>
+                <span class="article-published">@news.published_utc.ToShortDateString()</span>
+            </a>
+        }
+    }
 }
 
 @code {
-    public string Symbol { get; set; } = "";
-    public TickerInfo? Data { get; set; } = null;
-    public List<TickerPrice> StockPrices {get; set; } = new List<TickerPrice>();
+    public SfAutoComplete<string, TickerSearch>? autoComplete;
+    private string symbol { get; set; } = "";
+    private TickerInfo? tickerInfo { get; set; } = null;
+    public SfStockChart? chart { get; set; }
+    private List<TickerPrice> stockPrices { get; set; } = new List<TickerPrice>();
+    private List<TickerNews> tickerNews { get; set; } = new List<TickerNews>();
     private async Task Logout()
     {
         await authStateProvider.Logout();
     }
+    private async Task DownloadPrices(DateTime from, DateTime to)
+    {
+        var price = await Http.GetFromJsonAsync<TickerPrice[]>($"api/tickers/price/{symbol}/{Timestamp.ToTimestamp(from)}/{Timestamp.ToTimestamp(to)}");
+        if (price is null)
+            return;
 
+        stockPrices = price.ToList();
+        chart?.Refresh();
+    }
+
+    private async Task DownloadNews() {
+        var data = await Http.GetFromJsonAsync<TickerNews[]>($"api/tickers/news/{symbol}");
+        if (data is not null)
+            tickerNews = data.ToList();
+    }
     private async Task Search()
     {
-        if (Symbol == "")
+        if (symbol == "")
             return;
-        Data = await Http.GetFromJsonAsync<TickerInfo>("api/tickers/info/" + Symbol);
-        Console.WriteLine(Data);
+        tickerInfo = await Http.GetFromJsonAsync<TickerInfo>("api/tickers/info/" + symbol);
+
+        var date = DateTime.Now.AddDays(-3);
+        await DownloadPrices(date, DateTime.Now);
+        await DownloadNews();
+    }
+
+    
+
+    private async Task<IEnumerable<TickerSearch>> AutoCompleteSearch(string key)
+    {
+        if (key == "")
+            return new List<TickerSearch>();
+
+        var response = await Http.GetFromJsonAsync<TickerSearch[]>("api/Tickers/Search?q=" + key);
+
+        if (response is null)
+            return new List<TickerSearch>();
+
+        IEnumerable<TickerSearch> DataSource = response.ToList();
+
+        return DataSource;
+    }
+
+    private async Task OnFiltering(Syncfusion.Blazor.DropDowns.FilteringEventArgs args)
+    {
+        args.PreventDefaultAction = true;
+
+        if (autoComplete is null)
+            return;
+
+        await autoComplete.HidePopupAsync();
+        var data = await AutoCompleteSearch(args.Text);
+        await autoComplete.FilterAsync(data, new Query());
+        await autoComplete.ShowPopupAsync();
+    }
+    private Action<Syncfusion.Blazor.DropDowns.FilteringEventArgs> OnInputDebounced { get; set; } = null!;
+    protected override async Task OnInitializedAsync()
+    {
+        OnInputDebounced = DebounceEvent<Syncfusion.Blazor.DropDowns.FilteringEventArgs>(async e => await this.OnFiltering(e),
+        TimeSpan.FromMilliseconds(1000));
+        await base.OnInitializedAsync();
+    }
+    Action<T> DebounceEvent<T>(Action<T> action, TimeSpan interval)
+    {
+        return Debounce<T>(arg =>
+        {
+            InvokeAsync(() =>
+            {
+                action(arg);
+                StateHasChanged();
+            });
+        }, interval);
+    }
+    Action<T> Debounce<T>(Action<T> action, TimeSpan interval) {
+        if (action == null) throw new ArgumentNullException(nameof(action));
+
+        var last = 0;
+        return arg =>
+        {
+            var current = System.Threading.Interlocked.Increment(ref last);
+            Task.Delay(interval).ContinueWith(task => {
+                if (current == last)
+                    action(arg);
+            });
+        };
     }
 }

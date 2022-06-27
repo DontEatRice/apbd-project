@@ -36,7 +36,6 @@ namespace Server.Controllers
                     TickerSymbol = e.Ticker.TickerSymbol
                 })
             };
-            Console.WriteLine(watchlist.Count);
             return Ok(result);
         }
 

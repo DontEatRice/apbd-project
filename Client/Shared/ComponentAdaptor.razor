@@ -1,4 +1,3 @@
-@using static Client.Pages.Index
 @using Syncfusion.Blazor
 @using Syncfusion.Blazor.Data
 @using System.Text.Json.Serialization
@@ -39,4 +38,5 @@
 
         return dm.RequiresCounts ? new DataResult() { Result = DataSource, Count = count } : (object)DataSource;
     }
+
 }

@@ -10,5 +10,6 @@ namespace Server.Services
 
         public string GetApiKey();
         public Task<TickerPrice?> GetPrice(string name, long from, long to);
+        public Task<TickerNews?> GetRecentNews(string symbol);
     }
 }

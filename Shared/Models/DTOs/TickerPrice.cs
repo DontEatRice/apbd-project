@@ -6,7 +6,12 @@ namespace blazor_project.Shared.Models.DTOs
         public double high { get; set; }
         public double low { get; set; }
         public double open { get; set; }
-        public DateTime time { get; set; } 
+        public DateTime time {get; set; } 
         public double volume { get; set; }
+        // public string axisTime {
+        //     get {
+        //         if (time.get)
+        //     }
+        // }
     }
 }

@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace blazor_project.Shared.Models.DTOs
 {
     public class Branding
@@ -10,7 +5,7 @@ namespace blazor_project.Shared.Models.DTOs
         public string icon_url { get; set; } = null!;
         public string logo_url { get; set; } = null!;
     }
-    public class Results
+    public class TickerInfo
     {
         public string locale { get; set; } = null!;
         public string market { get; set; } = null!;
@@ -19,9 +14,5 @@ namespace blazor_project.Shared.Models.DTOs
         public Branding? branding { get; set; }
         public int total_employees { get; set; }
         public string name { get; set; } = null!;
-    }
-    public class TickerInfo
-    {
-        public Results results { get; set; } = null!;
     }
 }

@@ -1,3 +1,4 @@
+using blazor_project.Shared;
 using blazor_project.Shared.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Server.Services;
@@ -13,10 +14,31 @@ namespace Server.Controllers
         public TickersController(IPolygonService service) {
             _service = service;
         }
+        [HttpGet("{name}")]
+        public async Task<IActionResult> News(string name) {
+            try {
+                var data = await _service.GetRecentNews(name);
+                if (data is null)
+                    throw new Exception("no news?");
+                var result = data.results.Select(e =>
+                    new TickerNews {
+                        article_url = e.article_url,
+                        author = e.author,
+                        description = e.description,
+                        title = e.title,
+                        published_utc = e.published_utc
+                    }
+                );
+                return Ok(result);
+            }catch (Exception e) {
+                Console.WriteLine(e);
+                return Problem(e.Message);
+            }
+        }
 
         [HttpGet("{name}/{from}")]
         public Task<IActionResult> Price(string name, long from) {
-            return Price(name, from, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds() * 1000);
+            return Price(name, from, Timestamp.ToTimestamp(DateTime.UtcNow));
         }
 
         [HttpGet("{name}/{from}/{to}")]
@@ -25,15 +47,20 @@ namespace Server.Controllers
                 var data = await _service.GetPrice(name, from, to);
                 if (data is null)
                     return NoContent();
-                return Ok(data.results.Select(e => new TickerPrice{
+
+                if (data.results is null) {
+                    return Ok(new List<object>());
+                }
+                return Ok(data.results?.Select(e => new TickerPrice{
                     open = e.o,
                     high = e.h,
                     low = e.l,
                     close = e.c,
-                    time = DateTimeOffset.FromUnixTimeMilliseconds(e.t).DateTime,
+                    time = Timestamp.FromTimestamp(e.t),
                     volume = e.v
                 }));
             } catch (Exception e) {
+                Console.WriteLine(e);
                 return Problem(e.Message);
             }
         }
@@ -41,14 +68,18 @@ namespace Server.Controllers
         [HttpGet("{name}")]
         public async Task<IActionResult> Info(string name) {
             try {
-                var result = await _service.GetTickerByName(name);
-                if (result is null)
+                var data = await _service.GetTickerByName(name);
+                if (data is null)
                     return NotFound();
 
-                result.results.branding = new Models.PolygonModels.Branding {
-                    icon_url = result.results.branding.icon_url + "?apiKey=" + _service.GetApiKey(),
-                    logo_url = result.results.branding.logo_url + "?apiKey=" + _service.GetApiKey()
-                };
+                var result = data.results;
+
+                if (result.branding is not null) {
+                    result.branding = new Models.PolygonModels.Branding {
+                        icon_url = result.branding.icon_url + "?apiKey=" + _service.GetApiKey(),
+                        logo_url = result.branding.logo_url + "?apiKey=" + _service.GetApiKey()
+                    };
+                }
                 return Ok(result);
             } catch (Exception e) {
                 Console.WriteLine(e);

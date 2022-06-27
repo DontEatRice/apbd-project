@@ -18,7 +18,7 @@ namespace Server.Models.PolygonModels
     {
         public bool active { get; set; }
         public Address address { get; set; } = null!;
-        public Branding branding { get; set; } = null!;
+        public Branding? branding { get; set; } = null!;
         public string currency_name { get; set; } = null!;
         public string description { get; set; } = null!;
         public string homepage_url { get; set; } = null!;

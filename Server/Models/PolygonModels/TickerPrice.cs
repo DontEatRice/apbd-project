@@ -17,7 +17,7 @@ namespace Server.Models.PolygonModels
         public bool adjusted { get; set; }
         public int queryCount { get; set; }
         public string request_id { get; set; } = null!;
-        public List<Price> results { get; set; } = null!;
+        public List<Price>? results { get; set; } = null!;
         public int resultsCount { get; set; }
         public string status { get; set; } = null!;
         public string ticker { get; set; } = null!;

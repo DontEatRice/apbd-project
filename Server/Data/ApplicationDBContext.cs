@@ -29,7 +29,7 @@ namespace Server.Data
                 e.HasKey(e => new {e.IdTicker, e.IdUser});
 
                 e.HasOne(e => e.Ticker).WithMany(e => e.UsersTickers).HasForeignKey(e => e.IdTicker).OnDelete(DeleteBehavior.NoAction);
-                e.HasOne(e => e.User).WithMany(e => e.FollowedTickers).HasForeignKey(e => e.IdUser).OnDelete(DeleteBehavior.ClientCascade);
+                e.HasOne(e => e.User).WithMany(e => e.FollowedTickers).HasForeignKey(e => e.IdUser).OnDelete(DeleteBehavior.NoAction);
             });
         }
     }

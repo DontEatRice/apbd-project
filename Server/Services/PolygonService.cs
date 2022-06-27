@@ -21,7 +21,14 @@ namespace Server.Services
         public async Task<TickerPrice?> GetPrice(string name, long from, long to)
         {
             return await _httpClient.GetFromJsonAsync<TickerPrice>(
-                $"https://api.polygon.io/v2/aggs/ticker/{name}/range/1/hour/{from}/{to}?adjusted=true&sort=asc&apiKey={API_KEY}"
+                $"https://api.polygon.io/v2/aggs/ticker/{name}/range/1/hour/{from}/{to}?adjusted=true&limit=50000&sort=asc&apiKey={API_KEY}"
+            );
+        }
+
+        public async Task<TickerNews?> GetRecentNews(string symbol)
+        {
+            return await _httpClient.GetFromJsonAsync<TickerNews>(
+                $"https://api.polygon.io/v2/reference/news?ticker={symbol}&limit=5&sort=published_utc&apiKey={API_KEY}"
             );
         }
 
