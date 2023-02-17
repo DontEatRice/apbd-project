@@ -85,44 +85,39 @@ namespace Server.Controllers
             if (user is null)
                 return BadRequest("User does not exist");
 
-            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
+                var ticker = await _tickerService.GetTickerByName(body.TickerSymbol);
+                if (ticker is null)
                 {
-                    var ticker = await _tickerService.GetTickerByName(body.TickerSymbol);
-                    if (ticker is null)
+                    var tickerInfo = await _polygonService.GetTickerByName(body.TickerSymbol);
+                    ticker = new Ticker
                     {
-                        var tickerInfo = await _polygonService.GetTickerByName(body.TickerSymbol);
-                        ticker = new Ticker
-                        {
-                            TickerSymbol = body.TickerSymbol,
-                            LogoUrl = tickerInfo?.results.branding?.logo_url,
-                            Name = tickerInfo?.results.name,
-                            Sic = tickerInfo?.results.sic_description
-                        };
-                        _tickerService.CreateTicker(ticker);
-                        await _tickerService.SaveDatabaseAsync();
-                    }
-
-                    if (await _watchlistService.GetUserTickerByNames(ticker.TickerSymbol, user.UserName) is not null)
-                        return BadRequest("User is already following this ticker");
-
-                    var userTicker = new UserTicker
-                    {
-                        IdTicker = ticker.IdTicker,
-                        IdUser = user.Id
+                        TickerSymbol = body.TickerSymbol,
+                        LogoUrl = tickerInfo?.results.branding?.logo_url,
+                        Name = tickerInfo?.results.name,
+                        Sic = tickerInfo?.results.sic_description
                     };
-                    _watchlistService.CreateEntry(userTicker);
+                    _tickerService.CreateTicker(ticker);
+                    await _tickerService.SaveDatabaseAsync();
+                }
+                if (await _watchlistService.GetUserTickerByNames(ticker.TickerSymbol, user.UserName) is not null)
+                    return BadRequest("User is already following this ticker");
 
-                    scope.Complete();
-                }
-                catch (Exception e)
+                var userTicker = new UserTicker
                 {
-                    Console.WriteLine(e);
-                    return Problem("Unexpected server error - " + e.Message);
-                }
+                    IdTicker = ticker.IdTicker,
+                    IdUser = user.Id
+                };
+                _watchlistService.CreateEntry(userTicker);
+                await _watchlistService.SaveDatabaseAsync();
+
             }
-            await _watchlistService.SaveDatabaseAsync();
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Problem("Unexpected server error - " + e.Message);
+            }
 
             return NoContent();
         }

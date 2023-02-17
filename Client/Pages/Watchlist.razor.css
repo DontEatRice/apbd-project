@@ -22,3 +22,7 @@ table, h4 {
 .paging-btns button {
     margin-left: 5px;
 }
+
+.clickable:hover {
+    cursor: pointers;
+}
