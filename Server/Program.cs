@@ -45,9 +45,6 @@ else
     app.UseHsts();
 }
 
-Console.WriteLine(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
-Console.WriteLine("Empty?");
-
 app.UseHttpsRedirection();
 
 app.UseBlazorFrameworkFiles();

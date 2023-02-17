@@ -115,7 +115,7 @@ else
     }
     private async Task DownloadPrices(DateTime from, DateTime to)
     {
-        var price = await Http.GetFromJsonAsync<TickerPrice[]>($"api/tickers/price/{symbol}/{Timestamp.ToTimestamp(from)}/{Timestamp.ToTimestamp(to)}");
+        var price = await Http.GetFromJsonAsync<TickerPrice[]>($"/api/tickers/price/{symbol}/{Timestamp.ToTimestamp(from)}/{Timestamp.ToTimestamp(to)}");
         if (price is null)
             return;
 
@@ -128,10 +128,15 @@ else
             TickerSymbol = symbol
         };
         await Http.PostAsJsonAsync<WatchlistPOST>("/api/watchlist", body);
+        if (watchlist is null)
+        {
+            watchlist = new List<string>();
+        }
+        watchlist.Add(symbol);
     }
 
     private async Task DownloadNews() {
-        var data = await Http.GetFromJsonAsync<TickerNews[]>($"api/tickers/news/{symbol}");
+        var data = await Http.GetFromJsonAsync<TickerNews[]>($"/api/tickers/news/{symbol}");
         if (data is not null)
             tickerNews = data.ToList();
     }
@@ -139,7 +144,7 @@ else
     {
         if (symbol == "")
             return;
-        tickerInfo = await Http.GetFromJsonAsync<TickerInfo>("api/tickers/info/" + symbol);
+        tickerInfo = await Http.GetFromJsonAsync<TickerInfo>("/api/tickers/info/" + symbol);
 
         var date = DateTime.Now.AddDays(-3);
         await DownloadPrices(date, DateTime.Now);
@@ -154,7 +159,7 @@ else
         if (key == "")
             return new List<TickerSearch>();
 
-        var response = await Http.GetFromJsonAsync<TickerSearch[]>("api/Tickers/Search?q=" + key);
+        var response = await Http.GetFromJsonAsync<TickerSearch[]>("/api/Tickers/Search?q=" + key);
 
         if (response is null)
             return new List<TickerSearch>();
